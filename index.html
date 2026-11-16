@@ -1,0 +1,267 @@
+git <!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Mis ahorros</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <!-- Encabezado: navegación de mes -->
+      <header class="mes-nav">
+        <button
+          id="btn-mes-anterior"
+          class="btn-icono"
+          type="button"
+          aria-label="Mes anterior"
+        >
+          ‹
+        </button>
+        <h1 id="titulo-mes">Mes Año</h1>
+        <button
+          id="btn-mes-siguiente"
+          class="btn-icono"
+          type="button"
+          aria-label="Mes siguiente"
+        >
+          ›
+        </button>
+      </header>
+
+      <!-- Resumen del mes -->
+      <section class="resumen" aria-label="Resumen del mes">
+        <div class="saldo">
+          <span class="resumen-etiqueta">Saldo acumulado</span>
+          <strong id="res-saldo" class="saldo-valor">$0</strong>
+        </div>
+        <dl class="resumen-datos">
+          <div>
+            <dt>Ingresado</dt>
+            <dd id="res-ingresos" class="positivo">$0</dd>
+          </div>
+          <div>
+            <dt>Gastado</dt>
+            <dd id="res-gastos" class="negativo">$0</dd>
+          </div>
+          <div>
+            <dt>Días trabajados</dt>
+            <dd id="res-dias-trabajados">0</dd>
+          </div>
+          <div>
+            <dt>Día del mes</dt>
+            <dd id="res-dia-mes">1 de 30</dd>
+          </div>
+        </dl>
+      </section>
+
+      <!-- Calendario -->
+      <section class="calendario" aria-label="Calendario">
+        <div class="semana-cabecera" aria-hidden="true">
+          <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span
+          ><span>S</span><span>D</span>
+        </div>
+        <div id="calendario-dias" class="dias-grilla">
+          <!-- Los días se generan con JavaScript -->
+        </div>
+        <p class="leyenda">
+          <span class="leyenda-item"
+            ><i class="punto punto-ingreso"></i>Pago</span
+          >
+          <span class="leyenda-item"
+            ><i class="punto punto-gasto"></i>Gasto</span
+          >
+        </p>
+      </section>
+
+      <!-- Acceso al historial -->
+      <section class="historial-acceso">
+        <button id="btn-historial" class="btn-principal" type="button">
+          Ver historial
+        </button>
+      </section>
+
+      <!-- Respaldo -->
+      <section class="respaldo" aria-label="Respaldo de datos">
+        <button id="btn-exportar" class="btn-secundario" type="button">
+          Guardar respaldo
+        </button>
+        <button id="btn-importar" class="btn-secundario" type="button">
+          Restaurar respaldo
+        </button>
+        <input
+          id="input-importar"
+          type="file"
+          accept="application/json,.json"
+          hidden
+        />
+      </section>
+    </main>
+
+    <!-- Panel del día (se abre al tocar un día) -->
+    <dialog id="panel-dia" class="panel">
+      <div class="panel-contenido">
+        <header class="panel-cabecera">
+          <h2 id="panel-titulo">Día</h2>
+          <button
+            id="btn-cerrar-panel"
+            class="btn-icono"
+            type="button"
+            aria-label="Cerrar"
+          >
+            ×
+          </button>
+        </header>
+
+        <!-- Movimientos ya registrados en el día -->
+        <ul id="lista-movimientos" class="movimientos"></ul>
+        <p id="sin-movimientos" class="vacio">
+          Aún no hay movimientos este día.
+        </p>
+
+        <!-- Formulario para agregar o editar -->
+        <div class="formulario">
+          <h3 id="form-titulo">Agregar movimiento</h3>
+
+          <div
+            class="tipo-selector"
+            role="group"
+            aria-label="Tipo de movimiento"
+          >
+            <button
+              id="btn-tipo-ingreso"
+              class="tipo activo"
+              type="button"
+              data-tipo="ingreso"
+            >
+              Pago
+            </button>
+            <button
+              id="btn-tipo-gasto"
+              class="tipo"
+              type="button"
+              data-tipo="gasto"
+            >
+              Gasto
+            </button>
+          </div>
+
+          <label for="input-valor">Valor</label>
+          <input
+            id="input-valor"
+            type="text"
+            inputmode="numeric"
+            placeholder="$0"
+            autocomplete="off"
+          />
+
+          <div id="atajos" class="atajos" aria-label="Valores rápidos">
+            <button type="button" data-valor="50000">$50.000</button>
+            <button type="button" data-valor="55000">$55.000</button>
+            <button type="button" data-valor="60000">$60.000</button>
+          </div>
+
+          <label for="input-nota">Nota (opcional)</label>
+          <input
+            id="input-nota"
+            type="text"
+            placeholder="Ej. bus, almuerzo"
+            maxlength="60"
+            autocomplete="off"
+          />
+
+          <div class="formulario-acciones">
+            <button
+              id="btn-cancelar-edicion"
+              class="btn-secundario"
+              type="button"
+              hidden
+            >
+              Cancelar edición
+            </button>
+            <button id="btn-guardar" class="btn-principal" type="button">
+              Guardar
+            </button>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Panel del historial -->
+    <dialog id="panel-historial" class="panel">
+      <div class="panel-contenido">
+        <header class="panel-cabecera">
+          <h2>Historial</h2>
+          <button
+            id="btn-cerrar-historial"
+            class="btn-icono"
+            type="button"
+            aria-label="Cerrar"
+          >
+            ×
+          </button>
+        </header>
+
+        <div
+          id="periodo-selector"
+          class="periodo-selector"
+          role="group"
+          aria-label="Periodo"
+        >
+          <button type="button" class="periodo" data-meses="3">3 meses</button>
+          <button type="button" class="periodo activo" data-meses="6">
+            6 meses
+          </button>
+          <button type="button" class="periodo" data-meses="12">
+            12 meses
+          </button>
+        </div>
+
+        <dl class="resumen-datos hist-resumen">
+          <div>
+            <dt>Ganado</dt>
+            <dd id="hist-ingresos" class="positivo">$0</dd>
+          </div>
+          <div>
+            <dt>Gastado</dt>
+            <dd id="hist-gastos" class="negativo">$0</dd>
+          </div>
+          <div>
+            <dt>Saldo</dt>
+            <dd id="hist-saldo">$0</dd>
+          </div>
+          <div>
+            <dt>Promedio ganado al mes</dt>
+            <dd id="hist-promedio">$0</dd>
+          </div>
+        </dl>
+
+        <div
+          id="hist-grafico"
+          class="grafico"
+          role="img"
+          aria-label="Ingresos y gastos por mes"
+        ></div>
+        <p class="leyenda">
+          <span class="leyenda-item"
+            ><i class="punto punto-ingreso"></i>Pagos</span
+          >
+          <span class="leyenda-item"
+            ><i class="punto punto-gasto"></i>Gastos</span
+          >
+        </p>
+
+        <h3 class="hist-subtitulo">Mes a mes</h3>
+        <ul id="hist-lista" class="hist-lista"></ul>
+        <p id="hist-sin-datos" class="vacio" hidden>
+          Aún no hay movimientos en este periodo.
+        </p>
+      </div>
+    </dialog>
+
+    <script src="app.js"></script>
+  </body>
+</html>
